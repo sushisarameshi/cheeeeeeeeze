@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チーズスロット</title>
+    <style>
+        #text-container1, #text-container2 {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 5px;
+        }
+        #next-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #body{
+            background-color: yellow;
+        }
+        .slot {
+            display: flex;
+            justify-content: center;
+            margin: 1px;
+        }
+
+    </style>
+</head>
+<body>
+    <h2>チーズもりもりスロット！</h2>
+    <h4>ゾロ目はド倍盛継続！　※出目が揃わなくなるまで抽選は続くぞ！</h4>
+    <div class="slot">
+        <div id="text-container1">0</div>
+        <div id="text-container2">0</div>
+    </div>
+    <button id="next-button">Stop</button>
+
+    <!-- 効果音ファイル -->
+    <audio id="slot-sound" src="Cheer-Yay02-1(High-Long-Solo).mp3"></audio>
+
+    <script src="main.js"></script>
+</body>
+</html>
