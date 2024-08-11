@@ -24,15 +24,23 @@
             justify-content: center;
             margin: 1px;
         }
+        .slot_wrap{
+            text-align: center;
+        }
 
     </style>
 </head>
 <body>
-    <h2>チーズもりもりスロット！</h2>
-    <h4>ゾロ目はド倍盛継続！　※出目が揃わなくなるまで抽選は続くぞ！</h4>
-    <div class="slot">
-        <div id="text-container1">0</div>
-        <div id="text-container2">0</div>
+    <h2>チーズスロットチャレンジ！</h2>
+    <h4>ゾロ目が出るとチーズ2倍！チーズを倍盛にしよう！　※続けて出目が揃うと抽選継続！</h4>
+    <div class="slot_wrap">
+        <div class="slot">
+            <div id="text-container1">0</div>
+            <div id="text-container2">0</div>
+        </div>
+        <div class="disp">
+            <div id="disp_cont">チーズ？倍</div>
+        </div>
     </div>
     <button id="next-button">Stop</button>
 
