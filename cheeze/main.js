@@ -24,6 +24,10 @@ let currentIndex = 0;
 let intervalId1, intervalId2;
 let zorome_count = 0;
 let isFirstSlotStopped = false; // 追加: 1つ目のスロットが止まったかどうかを管理
+let drumrollAudio; // 追加: ドラムロール効果音のオーディオオブジェクト
+let window_load_roopEnd = 0;
+let disp_size = 8;
+let disp_size_base = 3;
 
 // random_range を定義して範囲を設定
 const random_range = 10;// 0から10までのランダムな数値範囲を定義
@@ -33,20 +37,15 @@ function startSlotInterval(intervalId, textContainerId) {
         const randomNumber = Math.floor(Math.random() * random_range); // 0からrandom_rangeまでのランダムな数値
         document.getElementById(textContainerId).textContent = randomNumber;
     }, 100); // 100msごとに更新
-
     return intervalId;
-}
-
-// スロットの動作を開始する関数
-function startSlot() {
-    intervalId1 = startSlotInterval(intervalId1, 'text-container1');
-    intervalId2 = startSlotInterval(intervalId2, 'text-container2');
 }
 
 // スロットを停止する関数
 function stopSlot() {
     clearInterval(intervalId1);
     clearInterval(intervalId2);
+
+    stopPlayLoop(); // ドラムロール効果音の再生を停止
 }
 
 // スロットを1個止める関数
@@ -56,35 +55,41 @@ function stopFirstSlot() {
     const textElement1 = document.getElementById('text-container1');
     textElement1.textContent = texts[currentIndex];
     isFirstSlotStopped = true;
-
 }
 
 function showText() {
     if (!isFirstSlotStopped) {
-        // 1つ目のスロットを止める
-        stopFirstSlot();
-        } else {
-            // 2つ目のスロットを止めて結果を表示
-            stopSlot();
+        stopFirstSlot();    // 1つ目のスロットを止める
+        if (window_load_roopEnd){
+            playSound('roollEnd.mp3');  // 効果音を再生
+        }
+        window_load_roopEnd++
 
-            // 事前に指定したテキストを表示
-            const textElement1 = document.getElementById('text-container1');
-            const textElement2 = document.getElementById('text-container2');
-            const disp_cont = document.getElementById('disp_cont');
-            textElement1.textContent = texts[currentIndex];
-            textElement2.textContent = texts[(currentIndex + 1) % texts.length]; // 2つ目は次のテキスト
+    } else {
+        stopSlot();     // 2つ目のスロットを止めて結果を表示
+        playSound('roollEnd.mp3');  // 効果音を再生
+        // 事前に指定したテキストを表示
+        const textElement1 = document.getElementById('text-container1');
+        const textElement2 = document.getElementById('text-container2');
+        const disp_cont = document.getElementById('disp_cont');
+        const disp_result = document.getElementById('disp_result');
+        textElement1.textContent = texts[currentIndex];
+        textElement2.textContent = texts[(currentIndex + 1) % texts.length]; // 2つ目は次のテキスト
 
         // ゾロ目時処理
         if (texts[currentIndex] == texts[(currentIndex + 1) % texts.length]){
             zorome_count++;
-            disp_cont.textContent = 'チーズ' + 2**(zorome_count) + '倍！';       // ？倍表示
-                // 同じ音源を複数重ねて再生する
-            playSound('Cheer-Yay02-1(High-Long-Solo).mp3');
+            disp_cont.textContent = 2**(zorome_count) + '倍！';       // ？倍表示
+            disp_result.textContent = '現在：チーズ' + 2**(zorome_count) + '倍！';       // ？倍表示
+            disp_result.style.fontSize = (disp_size_base+(zorome_count))*disp_size + 'px';
+            playSound('Cheer-Yay02-1(High-Long-Solo).mp3');  // 効果音を再生
         }else if (zorome_count != 0){
-            disp_cont.textContent = 'チーズ' + 2**(zorome_count) + '倍決定！';   // 倍率決定後表示
+            disp_cont.textContent = 'やったね！';   // 倍率決定後表示
+            disp_result.textContent = '結果：チーズ' + 2**(zorome_count) + '倍！';       // ？倍表示
+            disp_result.style.fontSize = (disp_size_base+(zorome_count))*disp_size + 'px';
             zorome_count=0;
         }else{
-            disp_cont.textContent = '残念！';                              // 1回も当たらなかったとき
+            disp_cont.textContent = '残念！';   // 1回も当たらなかったとき
         }
 
         // 次のテキストに移動（次のラウンドのため）
@@ -104,6 +109,7 @@ function showText() {
 }
 
 function restartSlot() {
+    playLoop('drumroll.mp3'); // ドラムロール効果音の再生を開始
     intervalId1 = startSlotInterval(intervalId1, 'text-container1');
     intervalId2 = startSlotInterval(intervalId2, 'text-container2');
 
@@ -115,12 +121,26 @@ function restartSlot() {
     const textElement1 = document.getElementById('text-container1');
     const textElement2 = document.getElementById('text-container2');
     const disp_cont = document.getElementById('disp_cont');
+    const disp_result = document.getElementById('disp_result');
     textElement1.textContent = texts[currentIndex];
     textElement2.textContent = texts[(currentIndex + 1) % texts.length]; // 2つ目は次のテキスト
     if (texts[currentIndex-2] == texts[(currentIndex + 1) % texts.length-2]){
-        disp_cont.textContent = 'ゾロ目が揃えばチーズ' + 2**(zorome_count+1) +'倍';       // ？倍表示
+        disp_cont.textContent = 'ゾロ目が揃えば' + 2**(zorome_count+1) +'倍';       // ？倍表示
+        disp_result.textContent = '現在：チーズ' + 2**(zorome_count) + '倍！';       // ？倍表示
+        if(zorome_count == 0){
+            disp_result.style.fontSize = 20 + 'px';
+        }else{
+            disp_result.style.fontSize = (disp_size_base+(zorome_count))*disp_size + 'px';
+        }
+        
     }else{
-        disp_cont.textContent = 'チーズ？倍';       // ？倍表示
+        disp_cont.textContent = '？倍';       // ？倍表示
+        disp_result.textContent = '現在：チーズ' + 2**(zorome_count) + '倍！';       // ？倍表示
+        if(zorome_count == 0){
+            disp_result.style.fontSize = 20 + 'px';
+        }else{
+            disp_result.style.fontSize = (disp_size_base+(zorome_count))*disp_size + 'px';
+        }
     }
 
     // イベントリスナーを元に戻す
@@ -131,16 +151,33 @@ function restartSlot() {
     isFirstSlotStopped = false;
 }
 
-document.getElementById('next-button').addEventListener('click', showText);
+// ドラムロール効果音の再生を開始する関数
+function playLoop(url) {
+    drumrollAudio = new Audio(url);
+    drumrollAudio.loop = true; // ループ再生
+    drumrollAudio.play(); // ドラムロールを再生
+}
 
-//起動時スロット表示
-window.addEventListener('load', function(){
-    intervalId1 = startSlotInterval(intervalId1, 'text-container1');
-    intervalId2 = startSlotInterval(intervalId2, 'text-container2');
-});
+// ドラムロール効果音の再生を停止する関数
+function stopPlayLoop() {
+    if (drumrollAudio) {
+        drumrollAudio.pause(); // 再生を停止
+        drumrollAudio.currentTime = 0; // 再生位置をリセット
+    }
+}
+
 
 // 効果音を動的に生成して再生する関数
 function playSound(url) {
     const audio = new Audio(url); // 新しい Audio オブジェクトを作成
     audio.play(); // 効果音を再生
 }
+
+// 起動時スロット表示（追加- スロットが回らないように設定）
+window.addEventListener('load', function() {
+    // スロット開始のためのボタンイベントリスナー設定（ボタンがクリックされるとスロットが開始するように設定）
+    const button = document.getElementById('next-button');
+    button.textContent = 'Start !';
+    button.addEventListener('click', showText);
+    button.addEventListener('click', restartSlot);
+});
