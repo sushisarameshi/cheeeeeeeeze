@@ -3,6 +3,7 @@
 // 表示するテキストの配列を作成
 const texts = [
     '2','2',    // 〇   *2
+    '6','6',    // 〇   *2
     '1','7',    // ×    *2
     '3','3',    // 〇   *2
     '8','8',    // 〇   *4
@@ -16,9 +17,24 @@ const texts = [
     '9','9',    // 〇   *64
     '2','2',    // 〇   *128
     '3','3',    // 〇   *256
-    '8','2',    // ×    *512
+    '8','8',    // 〇   *512
+    '7','7',    // 〇   *1024
+    '1','2',    // ×    *2048
     // 追加のテキスト
 ];
+
+// 数字に対応する色を定義
+const numberColors = {
+    '1': '#FF5733', // 赤
+    '2': '#33FF57', // 緑
+    '3': '#3357FF', // 青
+    '4': '#FFFF33', // 黄
+    '5': '#FF33FF', // ピンク
+    '6': '#33FFFF', // シアン
+    '7': '#FFA533', // オレンジ
+    '8': '#A533FF', // 紫
+    '9': '#333333'  // 黒
+};
 
 let currentIndex = 0;
 let intervalId1, intervalId2;
@@ -35,7 +51,13 @@ const random_range = 10;// 0から10までのランダムな数値範囲を定�
 function startSlotInterval(intervalId, textContainerId) {
     intervalId = setInterval(() => {
         const randomNumber = Math.floor(Math.random() * random_range); // 0からrandom_rangeまでのランダムな数値
-        document.getElementById(textContainerId).textContent = randomNumber;
+        const textElement = document.getElementById(textContainerId);
+        textElement.textContent = randomNumber;
+        
+        // 数字に応じて色を設定
+        if (numberColors[randomNumber]) {
+            textElement.style.color = numberColors[randomNumber];
+        }
     }, 100); // 100msごとに更新
     return intervalId;
 }
@@ -54,6 +76,12 @@ function stopFirstSlot() {
     clearInterval(intervalId1);
     const textElement1 = document.getElementById('text-container1');
     textElement1.textContent = texts[currentIndex];
+
+    // 数字に応じて色を設定
+    if (numberColors[texts[currentIndex]]) {
+        textElement1.style.color = numberColors[texts[currentIndex]];
+    }
+
     isFirstSlotStopped = true;
 }
 
@@ -75,6 +103,15 @@ function showText() {
         const disp_result = document.getElementById('disp_result');
         textElement1.textContent = texts[currentIndex];
         textElement2.textContent = texts[(currentIndex + 1) % texts.length]; // 2つ目は次のテキスト
+
+        // 数字に応じて色を設定
+        if (numberColors[texts[currentIndex]]) {
+            textElement1.style.color = numberColors[texts[currentIndex]];
+        }
+        if (numberColors[texts[(currentIndex + 1) % texts.length]]) {
+            textElement2.style.color = numberColors[texts[(currentIndex + 1) % texts.length]];
+        }
+
 
         // ゾロ目時処理
         if (texts[currentIndex] == texts[(currentIndex + 1) % texts.length]){
@@ -141,6 +178,14 @@ function restartSlot() {
         }else{
             disp_result.style.fontSize = (disp_size_base+(zorome_count))*disp_size + 'px';
         }
+    }
+
+    // 数字に応じて色を設定
+    if (numberColors[texts[currentIndex]]) {
+        textElement1.style.color = numberColors[texts[currentIndex]];
+    }
+    if (numberColors[texts[(currentIndex + 1) % texts.length]]) {
+        textElement2.style.color = numberColors[texts[(currentIndex + 1) % texts.length]];
     }
 
     // イベントリスナーを元に戻す
